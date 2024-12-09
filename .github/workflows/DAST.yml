@@ -58,11 +58,6 @@ jobs:
           nohup python app.py &
         continue-on-error: true
 
-      - name: Install OWASP ZAP
-        uses: zaproxy/action-full-scan@v0.1.0
-        with:
-          target: "http://127.0.0.1:8081"  # Ganti dengan URL aplikasi Anda
-
       - name: Check if app is running
         run: |
           curl http://127.0.0.1:8081
@@ -71,6 +66,11 @@ jobs:
         run: |
           docker ps -a
           
+      - name: Install OWASP ZAP
+        uses: zaproxy/action-full-scan@v0.1.0
+        with:
+          target: "http://127.0.0.1:8081" 
+
       - name: Run DAST Scan with OWASP ZAP
         id: zap_scan
         continue-on-error: true
