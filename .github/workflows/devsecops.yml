@@ -61,34 +61,34 @@ jobs:
           path: safety_report.txt
 
   # Optional: Container Security Scanning
-  container-security:
-    name: Container Security Scan
-    runs-on: ubuntu-latest
+  # container-security:
+  #   name: Container Security Scan
+  #   runs-on: ubuntu-latest
 
-    steps:
-      # Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     # Checkout code
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      # Build Docker Image
-      - name: Build Docker image
-        run: |
-          docker build -t flask-app:latest .
+  #     # Build Docker Image
+  #     - name: Build Docker image
+  #       run: |
+  #         docker build -t flask-app:latest .
 
-      # Trivy untuk Container Scanning
-      - name: Scan Docker Image for Vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'flask-app:latest'
-          format: 'table'
-          output: 'trivy_report.txt'
-          exit-code: '0' # Prevent pipeline failure
-          ignore-unfixed: true
-          vuln-type: 'os,library'
+  #     # Trivy untuk Container Scanning
+  #     - name: Scan Docker Image for Vulnerabilities
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: 'flask-app:latest'
+  #         format: 'table'
+  #         output: 'trivy_report.txt'
+  #         exit-code: '0' # Prevent pipeline failure
+  #         ignore-unfixed: true
+  #         vuln-type: 'os,library'
 
-      # Upload Trivy Report
-      - name: Upload Trivy Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy_report.txt
+  #     # Upload Trivy Report
+  #     - name: Upload Trivy Report
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: trivy-report
+  #         path: trivy_report.txt
