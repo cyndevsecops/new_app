@@ -12,77 +12,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout Repository
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
+      # Install Dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install flake8 bandit safety
 
+      # Run Flake8
       - name: Run Flake8 (Code Quality)
         id: flake8
         continue-on-error: true
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> flake8_report.txt
-      - name: Check Flake8 Report for Violations
-        run: |
-          if grep -q "E9\|F63\|F7\|F82" flake8_report.txt; then
-            echo "❌ Flake8 found critical issues in your code!"
-            cat flake8_report.txt
-            exit 1
-          else
-            echo "✅ No critical issues found by Flake8."
-          fi
+          flake8 . --count --exit-zero --select=E9,F63,F7,F82 --max-complexity=10 --max-line-length=127 --statistics > flake8_report.txt
+
       - name: Upload Flake8 Report
         uses: actions/upload-artifact@v4
         with:
           name: flake8-report
           path: flake8_report.txt
 
+      # Run Bandit
       - name: Run Bandit (SAST)
         id: bandit
         continue-on-error: true
         run: |
-          bandit -r . -o bandit_report.txt -f txt || true
+          bandit -r . -o bandit_report.txt -f txt
 
-      - name: Check Bandit Report for Issues
-        run: |
-          if grep -q "Issue:" bandit_report.txt; then
-            echo "❌ Bandit found security issues!"
-            cat bandit_report.txt
-            exit 1
-          else
-            echo "✅ No issues found by Bandit."
-          fi
       - name: Upload Bandit Report
         uses: actions/upload-artifact@v4
         with:
           name: bandit-report
           path: bandit_report.txt
 
+      # Run Safety
       - name: Run Safety (Dependency Scanning)
         id: safety
         continue-on-error: true
         run: |
-          safety check -r requirements.txt > safety_report.txt || true
-
-      - name: Check Safety Report for Vulnerabilities
-        run: |
-          if grep -q "vulnerable" safety_report.txt; then
-            echo "❌ Safety found vulnerable dependencies!"
-            cat safety_report.txt
-            exit 1
-          else
-            echo "✅ No vulnerable dependencies found."
-          fi
+          safety check -r requirements.txt --full-report > safety_report.txt
 
       - name: Upload Safety Report
         uses: actions/upload-artifact@v4
@@ -90,24 +68,25 @@ jobs:
           name: safety-report
           path: safety_report.txt
 
+      # Final Check for Issues
       - name: Final Check for Issues
         run: |
-          echo "Checking for Flake8, Bandit, and Safety issues..."
+          echo "🔎 Checking reports for issues..."
           has_issues=false
 
-          # Check Flake8 report
+          # Flake8 Report
           if grep -q "E9\|F63\|F7\|F82" flake8_report.txt; then
             echo "❌ Flake8 found issues!"
             has_issues=true
           fi
 
-          # Check Bandit report
+          # Bandit Report
           if grep -q "Issue:" bandit_report.txt; then
             echo "❌ Bandit found security issues!"
             has_issues=true
           fi
 
-          # Check Safety report
+          # Safety Report
           if grep -q "vulnerable" safety_report.txt; then
             echo "❌ Safety found vulnerable dependencies!"
             has_issues=true
