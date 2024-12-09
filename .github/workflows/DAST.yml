@@ -62,9 +62,9 @@ jobs:
         run: |
           curl http://127.0.0.1:8081
       
-      - name: Show Docker Logs
+      - name: Docker
         run: |
-          docker ps -a
+          docker --version
           
       - name: Install OWASP ZAP
         uses: zaproxy/action-full-scan@v0.1.0
