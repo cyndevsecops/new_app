@@ -62,28 +62,49 @@ jobs:
         run: |
           curl -I http://127.0.0.1:8081 || exit 1
 
-      - name: Install OWASP ZAP
-        uses: zaproxy/action-full-scan@v0.12.0
-        with:
-          target: "http://127.0.0.1:8081"
-          allow_issue_writing: false
-
-      - name: Run DAST Scan with OWASP ZAP
-        id: zap_scan
+      
+  Burp-Dastardly:
+    name: Burpsuite Scan
+    needs: running-apps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Dastardly Action Step
         continue-on-error: true
-        run: |
-          zap-cli quick-scan --url=http://127.0.0.1:8081
-          zap-cli report -o zap_report.html -f html
-          zap-cli report -o zap_report.json -f json
-
-      - name: Combine Reports into ZIP
-        run: |
-          ls -la
-          zip -r dast_reports.zip zap_report.html zap_report.json
-          echo "Reports combined into dast_reports.zip"
-
-      - name: Upload OWASP ZAP Report as Artifact
-        uses: actions/upload-artifact@v4
+        uses: PortSwigger/dastardly-github-action@main
         with:
-          name: dast-reports
-          path: dast_reports.zip
+          target-url: 'http://127.0.0.1:8081'
+      
+      - name: Publish Test Report with JUnit
+        if: always()
+        uses: mikepenz/action-junit-report@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/dastardly-report.xml'
+          require_tests: true
+
+      # - name: Install OWASP ZAP
+      #   uses: zaproxy/action-full-scan@v0.12.0
+      #   with:
+      #     target: "http://127.0.0.1:8081"
+      #     allow_issue_writing: false
+
+      # - name: Run DAST Scan with OWASP ZAP
+      #   id: zap_scan
+      #   continue-on-error: true
+      #   run: |
+      #     zap-cli quick-scan --url=http://127.0.0.1:8081
+      #     zap-cli report -o zap_report.html -f html
+      #     zap-cli report -o zap_report.json -f json
+
+      # - name: Combine Reports into ZIP
+      #   run: |
+      #     ls -la
+      #     zip -r dast_reports.zip zap_report.html zap_report.json
+      #     echo "Reports combined into dast_reports.zip"
+
+      # - name: Upload OWASP ZAP Report as Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: dast-reports
+      #     path: dast_reports.zip
