@@ -1,94 +1,62 @@
-name: DevSecOps Pipeline
+name: DevSecOps Pipeline with DAST
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
 
 jobs:
-  code-quality:
-    name: Code Quality and Security Checks
+  dast-testing:
+    name: DAST Testing with OWASP ZAP
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code dari repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 bandit safety
 
-      # 1. Flake8 untuk Code Quality
-      - name: Run Flake8 (Code Quality)
+      - name: Start the Application
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> flake8_report.txt
-      - name: Upload Flake8 Report
+          # Misalnya untuk Flask, jika menggunakan Docker bisa disesuaikan
+          nohup python app.py &  # Sesuaikan dengan aplikasi Anda
+
+      - name: Install OWASP ZAP
+        uses: zentrick/owasp-zap-action@v1
+        with:
+          start_zap: true
+
+      - name: Run DAST Scan with OWASP ZAP
+        id: zap_scan
+        continue-on-error: true
+        run: |
+          # Sesuaikan URL dengan aplikasi yang akan diuji
+          zap-cli quick-scan --url=http://localhost:5000  # Sesuaikan dengan URL aplikasi Anda
+          
+          # Save the ZAP report to a file
+          zap-cli report -o zap_report.html -f html
+
+      - name: Check OWASP ZAP Report for Issues
+        run: |
+          if grep -q "Vulnerability" zap_report.html; then
+            echo "❌ OWASP ZAP found vulnerabilities in the application!"
+            cat zap_report.html
+            exit 1
+          else
+            echo "✅ No vulnerabilities found by OWASP ZAP."
+          fi
+
+      - name: Upload OWASP ZAP Report
         uses: actions/upload-artifact@v4
         with:
-          name: flake8-report
-          path: flake8_report.txt
-
-      # 2. Bandit untuk Static Application Security Testing (SAST)
-      - name: Run Bandit (SAST)
-        run: |
-          bandit -r . -o bandit_report.txt -f txt || true
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit_report.txt
-
-      # 3. Safety untuk Dependency Scanning
-      - name: Run Safety (Dependency Scanning)
-        run: |
-          safety check -r requirements.txt > safety_report.txt || true
-      - name: Upload Safety Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: safety-report
-          path: safety_report.txt
-
-  # Optional: Container Security Scanning
-  # container-security:
-  #   name: Container Security Scan
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     # Checkout code
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     # Build Docker Image
-  #     - name: Build Docker image
-  #       run: |
-  #         docker build -t flask-app:latest .
-
-  #     # Trivy untuk Container Scanning
-  #     - name: Scan Docker Image for Vulnerabilities
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: 'flask-app:latest'
-  #         format: 'table'
-  #         output: 'trivy_report.txt'
-  #         exit-code: '0' # Prevent pipeline failure
-  #         ignore-unfixed: true
-  #         vuln-type: 'os,library'
-
-  #     # Upload Trivy Report
-  #     - name: Upload Trivy Report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: trivy-report
-  #         path: trivy_report.txt
+          name: zap-report
+          path: zap_report.html
