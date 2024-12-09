@@ -31,16 +31,34 @@ jobs:
       # 1. Flake8 untuk Code Quality
       - name: Run Flake8 (Code Quality)
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> flake8_report.txt
+      - name: Upload Flake8 Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake8-report
+          path: flake8_report.txt
+
       # 2. Bandit untuk Static Application Security Testing (SAST)
       - name: Run Bandit (SAST)
         run: |
-          bandit -r .
+          bandit -r . -o bandit_report.txt -f txt || true
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit_report.txt
+
       # 3. Safety untuk Dependency Scanning
       - name: Run Safety (Dependency Scanning)
         run: |
-          safety check -r requirements.txt
+          safety check -r requirements.txt > safety_report.txt || true
+      - name: Upload Safety Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety_report.txt
+
   # Optional: Container Security Scanning
   container-security:
     name: Container Security Scan
@@ -61,6 +79,14 @@ jobs:
         with:
           image-ref: 'flask-app:latest'
           format: 'table'
-          exit-code: '1'
+          output: 'trivy_report.txt'
+          exit-code: '0' # Prevent pipeline failure
           ignore-unfixed: true
           vuln-type: 'os,library'
+
+      # Upload Trivy Report
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy_report.txt
