@@ -48,6 +48,15 @@ jobs:
         with:
           name: bandit-report
           path: bandit_report.txt
+      - name: Check Bandit Report for Issues
+        run: |
+          if grep -q "Issue:" bandit_report.txt; then
+            echo "❌ Bandit found security issues!"
+            cat bandit_report.txt
+            exit 1
+          else
+            echo "✅ No issues found by Bandit."
+          fi
 
       # 3. Safety untuk Dependency Scanning
       - name: Run Safety (Dependency Scanning)
@@ -58,3 +67,12 @@ jobs:
         with:
           name: safety-report
           path: safety_report.txt
+      - name: Check Safety Report for Vulnerabilities
+        run: |
+          if grep -q "vulnerable" safety_report.txt; then
+            echo "❌ Safety found vulnerable dependencies!"
+            cat safety_report.txt
+            exit 1
+          else
+            echo "✅ No vulnerable dependencies found."
+          fi
