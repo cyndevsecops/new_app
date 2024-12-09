@@ -67,7 +67,7 @@ jobs:
         id: zap_scan
         continue-on-error: true
         run: |
-          zap-cli quick-scan --url=http://localhost:5000
+          zap-cli quick-scan --url=http://127.0.0.1:8081
           zap-cli report -o zap_report.html -f html
 
       - name: Check OWASP ZAP Report for Issues
