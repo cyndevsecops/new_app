@@ -28,7 +28,7 @@ jobs:
 
       - name: Start the Application
         run: |
-          nohup python app.py &
+          nohup python vulnerable-flash-app.py &
         continue-on-error: true
 
       - name: Install OWASP ZAP
