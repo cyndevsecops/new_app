@@ -8,7 +8,7 @@ on:
 
 jobs:
   running-apps:
-    name: Code Quality Checks
+    name: Running apps
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Start the Application
         run: |
-          nohup python vulnerable-flash-app.py &
+          nohup python app.py &
         continue-on-error: true
 
   dast-testing:
