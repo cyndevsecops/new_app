@@ -33,6 +33,15 @@ jobs:
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> flake8_report.txt
+      - name: Check Flake8 Report for Violations
+        run: |
+          if grep -q "E9\|F63\|F7\|F82" flake8_report.txt; then
+            echo "❌ Flake8 found critical issues in your code!"
+            cat flake8_report.txt
+            exit 1
+          else
+            echo "✅ No critical issues found by Flake8."
+          fi
       - name: Upload Flake8 Report
         uses: actions/upload-artifact@v4
         with:
@@ -43,11 +52,7 @@ jobs:
       - name: Run Bandit (SAST)
         run: |
           bandit -r . -o bandit_report.txt -f txt || true
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit_report.txt
+
       - name: Check Bandit Report for Issues
         run: |
           if grep -q "Issue:" bandit_report.txt; then
@@ -57,16 +62,18 @@ jobs:
           else
             echo "✅ No issues found by Bandit."
           fi
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit_report.txt
+
 
       # 3. Safety untuk Dependency Scanning
       - name: Run Safety (Dependency Scanning)
         run: |
           safety check -r requirements.txt > safety_report.txt || true
-      - name: Upload Safety Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: safety-report
-          path: safety_report.txt
+
       - name: Check Safety Report for Vulnerabilities
         run: |
           if grep -q "vulnerable" safety_report.txt; then
@@ -76,3 +83,9 @@ jobs:
           else
             echo "✅ No vulnerable dependencies found."
           fi
+
+      - name: Upload Safety Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety_report.txt
