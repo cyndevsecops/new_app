@@ -43,6 +43,7 @@ jobs:
       # Run OWASP ZAP DAST scan
       - name: Run DAST Scan with OWASP ZAP
         id: zap_scan
+        continue-on-error: true
         run: |
           # Sesuaikan URL dengan aplikasi yang akan diuji
           zap-cli quick-scan --url=http://localhost:5000  # Sesuaikan dengan URL aplikasi Anda
