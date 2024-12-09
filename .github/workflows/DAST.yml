@@ -2,9 +2,9 @@ name: DevSecOps Pipeline with DAST
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ staging ]
   pull_request:
-    branches: [ dev ]
+    branches: [ staging ]
 
 jobs:
   dast-testing:
