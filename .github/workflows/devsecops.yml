@@ -12,24 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code dari repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install flake8 bandit safety
-      # 1. Flake8 untuk Code Quality
+
       - name: Run Flake8 (Code Quality)
+        id: flake8
         continue-on-error: true
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
@@ -49,8 +47,8 @@ jobs:
           name: flake8-report
           path: flake8_report.txt
 
-      # 2. Bandit untuk Static Application Security Testing (SAST)
       - name: Run Bandit (SAST)
+        id: bandit
         continue-on-error: true
         run: |
           bandit -r . -o bandit_report.txt -f txt || true
@@ -70,9 +68,8 @@ jobs:
           name: bandit-report
           path: bandit_report.txt
 
-
-      # 3. Safety untuk Dependency Scanning
       - name: Run Safety (Dependency Scanning)
+        id: safety
         continue-on-error: true
         run: |
           safety check -r requirements.txt > safety_report.txt || true
@@ -92,3 +89,34 @@ jobs:
         with:
           name: safety-report
           path: safety_report.txt
+
+      - name: Final Check for Issues
+        run: |
+          echo "Checking for Flake8, Bandit, and Safety issues..."
+          has_issues=false
+
+          # Check Flake8 report
+          if grep -q "E9\|F63\|F7\|F82" flake8_report.txt; then
+            echo "❌ Flake8 found issues!"
+            has_issues=true
+          fi
+
+          # Check Bandit report
+          if grep -q "Issue:" bandit_report.txt; then
+            echo "❌ Bandit found security issues!"
+            has_issues=true
+          fi
+
+          # Check Safety report
+          if grep -q "vulnerable" safety_report.txt; then
+            echo "❌ Safety found vulnerable dependencies!"
+            has_issues=true
+          fi
+
+          # Force pipeline failure if any issues exist
+          if [ "$has_issues" = true ]; then
+            echo "❌ Security and Quality Checks Failed!"
+            exit 1
+          else
+            echo "✅ All checks passed successfully!"
+          fi
