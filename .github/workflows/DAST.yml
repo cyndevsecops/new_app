@@ -28,7 +28,6 @@ jobs:
 
       - name: Start the Application
         run: |
-          cd src
           nohup python app.py &
         continue-on-error: true
 
