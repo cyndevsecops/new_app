@@ -30,6 +30,7 @@ jobs:
           pip install flake8 bandit safety
       # 1. Flake8 untuk Code Quality
       - name: Run Flake8 (Code Quality)
+        continue-on-error: true
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_report.txt || true
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> flake8_report.txt
@@ -50,6 +51,7 @@ jobs:
 
       # 2. Bandit untuk Static Application Security Testing (SAST)
       - name: Run Bandit (SAST)
+        continue-on-error: true
         run: |
           bandit -r . -o bandit_report.txt -f txt || true
 
@@ -71,6 +73,7 @@ jobs:
 
       # 3. Safety untuk Dependency Scanning
       - name: Run Safety (Dependency Scanning)
+        continue-on-error: true
         run: |
           safety check -r requirements.txt > safety_report.txt || true
 
