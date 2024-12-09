@@ -7,7 +7,7 @@ on:
     branches: [ staging ]
 
 jobs:
-  code-quality:
+  running-apps:
     name: Code Quality Checks
     runs-on: ubuntu-latest
 
@@ -26,14 +26,15 @@ jobs:
           pip install -r requirements.txt
         continue-on-error: true
 
-      - name: Run Flake8 (Code Quality)
+      - name: Start the Application
         run: |
-          flake8 . --count --exit-zero --select=E9,F63,F7,F82 --max-complexity=10 --max-line-length=127 --statistics
+          nohup python vulnerable-flash-app.py &
+        continue-on-error: true
 
   dast-testing:
     name: DAST Testing with OWASP ZAP
     runs-on: ubuntu-latest
-    needs: code-quality  # This makes dast-testing dependent on code-quality
+    needs: running-apps
 
     steps:
       - name: Checkout code
