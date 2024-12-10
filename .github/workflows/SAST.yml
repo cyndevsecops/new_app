@@ -95,7 +95,7 @@ jobs:
 
   build-and-push:
     name: Build and Push to Docker Hub
-    needs: SAST
+    needs: code-quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
