@@ -116,3 +116,8 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/new_app:latest
         #test
+
+      - name: Check docker
+        run: |
+          docker ps
+          docker container ls --all
