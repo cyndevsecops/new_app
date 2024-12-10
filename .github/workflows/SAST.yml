@@ -85,7 +85,7 @@ jobs:
             has_issues=true
           fi
 
-          # Force pipeline failure if any issues exist
+          # Force pipeline failure if any issues existt
           if [ "$has_issues" = true ]; then
             echo "❌ Security and Quality Checks Failed!"
             exit 1
