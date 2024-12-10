@@ -113,6 +113,15 @@ jobs:
           docker build -t new_app:latest .
           docker tag new_app:latest ${{ secrets.DOCKER_USERNAME }}/new_app:latest
 
+      - name: Run Trivy (Container Scanning)
+        run: |
+          # Install Trivy
+          curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.39.1/trivy_0.39.1_Linux-64bit.deb -o trivy.deb
+          sudo dpkg -i trivy.deb
+          # Scan Docker image for vulnerabilities
+          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ secrets.DOCKER_USERNAME }}/new_app:latest
+        continue-on-error: true
+
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/new_app:latest
         #test
