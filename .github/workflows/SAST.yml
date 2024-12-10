@@ -95,7 +95,7 @@ jobs:
 
   build-and-push:
     name: Build and Push to Docker Hub
-    continue-on-error: true
+    # continue-on-error: true
     needs: code-quality
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +111,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t new_app:latest .
-          docker tag myapp:latest ${{ secrets.DOCKER_USERNAME }}/new_app:latest
+          docker tag new_app:latest ${{ secrets.DOCKER_USERNAME }}/new_app:latest
 
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/new_app:latest
