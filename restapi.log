@@ -1,0 +1,32 @@
+DEBUG:root:[]
+INFO:werkzeug:10.0.3.222 - - [10/Dec/2024 03:11:07] "GET /user/23 HTTP/1.1" 200 -
+ERROR:app:Exception on /user/' [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.13/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.13/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.13/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/adeputra-cynnex/Public/tmp/devsecops/new_app/app.py", line 20, in search_user
+    cur.execute("select * from test where username = '%s'" % name)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: unrecognized token: "'''"
+INFO:werkzeug:10.0.3.222 - - [10/Dec/2024 03:11:16] "[35m[1mGET /user/' HTTP/1.1[0m" 500 -
+DEBUG:root:[('test', 'test')]
+INFO:werkzeug:10.0.3.222 - - [10/Dec/2024 03:11:21] "GET /user/'%20or%201=1%20limit%201%20--%20-+ HTTP/1.1" 200 -
+DEBUG:root:<div>
+        <h1>Hello</h1>
+        test
+</div>
+
+INFO:werkzeug:10.0.3.222 - - [10/Dec/2024 03:11:39] "GET /hello?name=test HTTP/1.1" 200 -
+DEBUG:root:<div>
+        <h1>Hello</h1>
+        test"><h1>ha
+</div>
+
+INFO:werkzeug:10.0.3.222 - - [10/Dec/2024 03:11:44] "GET /hello?name=test"><h1>ha HTTP/1.1" 200 -
