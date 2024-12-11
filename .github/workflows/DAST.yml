@@ -47,6 +47,7 @@ jobs:
           zap-cli report -o zap_report.json -f json
 
       - name: Combine Reports into ZIP
+        continue-on-error: true
         run: |
           ls -la
           zip -r dast_reports.zip zap_report.html zap_report.json
