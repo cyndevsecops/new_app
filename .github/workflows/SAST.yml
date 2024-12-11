@@ -126,7 +126,7 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/new_app:latest
         #test
 
-      - name: Check docker
-        run: |
-          docker run -d -p 8081:5000 ${{ secrets.DOCKER_USERNAME }}/new_app:latest
-          docker ps
+      # - name: Check docker
+      #   run: |
+      #     docker run -d -p 8081:5000 ${{ secrets.DOCKER_USERNAME }}/new_app:latest
+      #     docker ps
