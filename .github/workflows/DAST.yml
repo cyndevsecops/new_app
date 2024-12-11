@@ -54,14 +54,14 @@ jobs:
       - name: Install OWASP ZAP
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: "http://127.0.0.1:8081"
+          target: "http://127.0.0.1:5000"
           allow_issue_writing: false
 
       - name: Run DAST Scan with OWASP ZAP
         id: zap_scan
         continue-on-error: true
         run: |
-          zap-cli quick-scan --url=http://127.0.0.1:8081
+          zap-cli quick-scan --url=http://127.0.0.1:5000
           zap-cli report -o zap_report.html -f html
           zap-cli report -o zap_report.json -f json
 
