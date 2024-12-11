@@ -18,8 +18,9 @@ RUN python -m pip install --upgrade pip && \
 # Copy seluruh source code ke dalam container
 COPY . .
 
+
 # Ekspos port 5000 (port default Flask)
-EXPOSE 8081
+EXPOSE 5000
 
 # Jalankan aplikasi Flask
 CMD ["python", "app.py"]
